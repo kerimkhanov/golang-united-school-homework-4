@@ -2,13 +2,16 @@ package string_sum
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
+	"regexp"
 )
 
 //use these errors as appropriate, wrapping them with fmt.Errorf function
 var (
 	// Use when the input is empty, and input is considered empty if the string contains only whitespace
 	errorEmptyInput = errors.New("input is empty")
-	// Use when the expression has number of operands not equal to two
+	// Use when the expression has (-|\+){0,1}\d+ of operands not equal to two
 	errorNotTwoOperands = errors.New("expecting two operands, but received more or less")
 )
 
@@ -22,6 +25,27 @@ var (
 //
 // Use the errors defined above as described, again wrapping into fmt.Errorf
 
+
 func StringSum(input string) (output string, err error) {
-	return "", nil
+	if input == "" {
+		return "", errorEmptyInput
+	}
+	re, _ := regexp.Compile("(-|\+){0,1}\d+")
+	if !re.MatchString(input) {
+		return "", nil
+	}
+ 	res := re.FindAllString(input, -1)
+ 	num1, err := strconv.Atoi(res[0])
+	if err != nil {
+		return panic(err)
+	}
+	num2, err := strconv.Atoi(res[1])
+	if err != nil {
+		return panic(err)
+	}
+	if num1 + num2 < 0 {
+		return "", nil
+	}
+	output = strconv.Itoa(num1 + num2)
+	return "", errorNotTwoOperands
 }
