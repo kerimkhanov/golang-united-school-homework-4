@@ -2,8 +2,8 @@ package string_sum
 
 import (
 	"errors"
-	"regexp"
 	"strconv"
+	"strings"
 )
 
 //use these errors as appropriate, wrapping them with fmt.Errorf function
@@ -25,25 +25,66 @@ var (
 // Use the errors defined above as described, again wrapping into fmt.Errorf
 
 func StringSum(input string) (output string, err error) {
-	if input == "" {
-		return "", errorEmptyInput
-	}
-	re, _ := regexp.Compile(`(-|\+){0,1}\d+`)
-	if !re.MatchString(input) {
-		return "", errors.New("Don't match")
-	}
-	res := re.FindAllString(input, -1)
-	num1, err := strconv.Atoi(res[0])
+	oper, err := FindOper(input)
 	if err != nil {
-		return "", errorNotTwoOperands
+		return "", errors.New("Not correctly operand data")
 	}
-	num2, err := strconv.Atoi(res[1])
+	num := strings.Split(input, oper)
+	if len(num) != 2 {
+		return "", errors.New("nums less or more then 2")
+	}
+	num1, err := strconv.Atoi(num[0])
 	if err != nil {
-		return "", errorNotTwoOperands
+		return "", err
 	}
-	if num1+num2 < 0 {
-		return "", nil
+	num2, err := strconv.Atoi(num[1])
+	if err != nil {
+		return "", err
 	}
-	output = strconv.Itoa(num1 + num2)
+	result := Calculation(num1, num2, oper)
+	output = strconv.Itoa(result)
 	return output, nil
+}
+
+func Calculation(num1, num2 int, oper string) (result int) {
+	if oper == "+" {
+		result = num1 + num2
+	} else if oper == "-" {
+		result = num1 - num2
+	} else if oper == "/" {
+		result = num1 / num2
+	} else if oper == "%" {
+		result = num1 % num2
+	} else if oper == "*" {
+		result = num1 * num2
+	}
+	return
+}
+
+func FindOper(input string) (operad string, err error) {
+	count := 0
+	for _, w := range input {
+		if w == '+' {
+			operad = "+"
+			count++
+		} else if w == '-' {
+			operad = "-"
+			count++
+		} else if w == '*' {
+			operad = "*"
+			count++
+		} else if w == '%' {
+			operad = "%"
+			count++
+		} else if w == '/' {
+			operad = "/"
+			count++
+		}
+	}
+
+	if count > 1 {
+		operad = ""
+		return operad, errors.New("Operand not correctly")
+	}
+	return operad, nil
 }
