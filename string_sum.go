@@ -2,6 +2,7 @@ package string_sum
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -25,9 +26,14 @@ var (
 // Use the errors defined above as described, again wrapping into fmt.Errorf
 
 func StringSum(input string) (output string, err error) {
-	oper, err := FindOper(input)
-	if err != nil {
-		return "", errors.New("Not correctly operand data")
+	oper, count := Oper(input)
+	if oper == "" && count > 1 {
+		err = fmt.Errorf("%w", errorNotTwoOperands)
+		return "", err
+	}
+	if oper == "" && count == 1 {
+		err = fmt.Errorf("%w", errorEmptyInput)
+		return "", err
 	}
 	num := strings.Split(input, oper)
 	if len(num) != 2 {
@@ -41,28 +47,12 @@ func StringSum(input string) (output string, err error) {
 	if err != nil {
 		return "", err
 	}
-	result := Calculation(num1, num2, oper)
+	result := Math(num1, num2, oper)
 	output = strconv.Itoa(result)
 	return output, nil
 }
 
-func Calculation(num1, num2 int, oper string) (result int) {
-	if oper == "+" {
-		result = num1 + num2
-	} else if oper == "-" {
-		result = num1 - num2
-	} else if oper == "/" {
-		result = num1 / num2
-	} else if oper == "%" {
-		result = num1 % num2
-	} else if oper == "*" {
-		result = num1 * num2
-	}
-	return
-}
-
-func FindOper(input string) (operad string, err error) {
-	count := 0
+func Oper(input string) (operad string, count int) {
 	for _, w := range input {
 		if w == '+' {
 			operad = "+"
@@ -84,7 +74,22 @@ func FindOper(input string) (operad string, err error) {
 
 	if count > 1 {
 		operad = ""
-		return operad, errors.New("Operand not correctly")
+		return operad, count
 	}
-	return operad, nil
+	return operad, count
+}
+
+func Math(num1, num2 int, oper string) (result int) {
+	if oper == "+" {
+		result = num1 + num2
+	} else if oper == "-" {
+		result = num1 - num2
+	} else if oper == "/" {
+		result = num1 / num2
+	} else if oper == "%" {
+		result = num1 % num2
+	} else if oper == "*" {
+		result = num1 * num2
+	}
+	return
 }
